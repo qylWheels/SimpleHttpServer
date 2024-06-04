@@ -18,7 +18,12 @@ class WSGIHttpServer:
         self.socket.listen(self.wait_queue_len)
 
     def handle_requests_forever(self):
-        pass
+        # TODO: Make this asynchronous.
+        while True:
+            client_conn, _ = self.socket.accept()
+            raw_request = client_conn.recv(1024)
+            request = self.parse_request(raw_request)
+            self.handle_one_request(request)
 
     def handle_one_request(self, request):
         pass
