@@ -4,6 +4,31 @@ import socket
 import sys
 import threading
 
+class WSGIHttpServer:
+    def __init__(self, host, port):
+        pass
+
+    def set_app(self, app):
+        pass
+
+    def handle_requests_forever(self):
+        pass
+
+    def handle_one_request(self, request):
+        pass
+
+    def parse_request(self, request):
+        pass
+
+    def start_response(self, status, response_headers, exc_info=None):
+        pass
+
+    def finish_response(self, result):
+        pass
+
+    def set_environment(self):
+        pass
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='A simple HTTP server that supports WSGI')
     parser.add_argument('-p', '--port', type=int, help='port number')
