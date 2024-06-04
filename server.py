@@ -2,6 +2,7 @@ import argparse
 import io
 import socket
 import sys
+import time
 import threading
 
 class WSGIHttpServer:
@@ -30,13 +31,17 @@ class WSGIHttpServer:
             self.handle_one_request(request)
 
     def handle_one_request(self, request):
-
+        pass
 
     def parse_request(self, request):
         pass
 
     def start_response(self, status, response_headers, exc_info=None):
-        pass
+        server_headers = [
+            ('Date', time.asctime(time.localtime(time.time()))),
+            ('Server', 'My fucking simple HTTP server 0.1.0')
+        ]
+        self.response_line_and_headers = (status, response_headers + server_headers)
 
     def finish_response(self, result):
         status, response_headers = self.response_line_and_headers
