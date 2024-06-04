@@ -3,7 +3,6 @@ import io
 import socket
 import sys
 import time
-import threading
 
 class WSGIHttpServer:
 
@@ -72,8 +71,8 @@ class WSGIHttpServer:
         env['wsgi.multiprocess'] = False
         env['wsgi.run_once']     = False
         # Required CGI variables
-        env['REQUEST_METHOD']    = self.request_method
-        env['PATH_INFO']         = self.path
+        env['REQUEST_METHOD']    = self.method
+        env['PATH_INFO']         = self.request_path
         env['SERVER_NAME']       = self.server_name
         env['SERVER_PORT']       = str(self.port)
         return env
