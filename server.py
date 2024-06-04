@@ -25,13 +25,16 @@ class WSGIHttpServer:
         # TODO: Make this asynchronous.
         while True:
             self.client_conn, _ = self.socket.accept()
-            raw_request = self.client_conn.recv(1024)
-            # FIXME: Don't parse the request here.
-            request = self.parse_request(raw_request)
-            self.handle_one_request(request)
+            self.handle_one_request()
 
-    def handle_one_request(self, request):
-        pass
+    def handle_one_request(self):
+        raw_request = self.client_conn.recv(1024)
+        self.decoded_raw_request = raw_request.decode()
+        print(''.join(f'> {line}' for line in self.decoded_raw_request))
+        self.parse_request(self.decoded_raw_request)
+        env = self.set_environment()
+        result = self.app(env, self.start_response)
+        self.finish_response(result)
 
     def parse_request(self, decoded_raw_request):
         request_line = decoded_raw_request.splitlines()[0].rstrip('\r\n')
