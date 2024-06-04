@@ -33,8 +33,9 @@ class WSGIHttpServer:
     def handle_one_request(self, request):
         pass
 
-    def parse_request(self, request):
-        pass
+    def parse_request(self, decoded_raw_request):
+        request_line = decoded_raw_request.splitlines()[0].rstrip('\r\n')
+        (self.method, self.request_path, self.http_server) = request_line.split()
 
     def start_response(self, status, response_headers, exc_info=None):
         server_headers = [
