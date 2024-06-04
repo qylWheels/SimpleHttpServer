@@ -23,8 +23,8 @@ class WSGIHttpServer:
     def handle_requests_forever(self):
         # TODO: Make this asynchronous.
         while True:
-            client_conn, _ = self.socket.accept()
-            raw_request = client_conn.recv(1024)
+            self.client_conn, _ = self.socket.accept()
+            raw_request = self.client_conn.recv(1024)
             # FIXME: Don't parse the request here.
             request = self.parse_request(raw_request)
             self.handle_one_request(request)
@@ -39,7 +39,18 @@ class WSGIHttpServer:
         pass
 
     def finish_response(self, result):
-        pass
+        status, response_headers = self.response_line_and_headers
+        response = f"HTTP/1.1 {status}\r\n"
+        for header in response_headers:
+            k, v = header
+            response += f"{k}: {v}\r\n"
+        response += "\r\n"
+        for content in result:
+            response += content.decode('utf-8')
+        print(''.join(f'> {line}\n' for line in response.splitlines()))
+        raw_response = response.encode()
+        self.client_conn.sendall(raw_response)
+        self.client_conn.close()
 
     def set_environment(self):
         env = {}
