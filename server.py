@@ -5,11 +5,17 @@ import sys
 import threading
 
 class WSGIHttpServer:
-    def __init__(self, host, port):
-        pass
 
-    def set_app(self, app):
-        pass
+    address_family = socket.AF_INET
+    socket_type = socket.SOCK_STREAM
+    wait_queue_len = 5
+
+    def __init__(self, host, port, app):
+        self.app = app
+        self.socket = socket.socket(self.address_family, self.socket_type)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind((host, port))
+        self.socket.listen(self.wait_queue_len)
 
     def handle_requests_forever(self):
         pass
