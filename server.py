@@ -11,6 +11,9 @@ class WSGIHttpServer:
     wait_queue_len = 5
 
     def __init__(self, host, port, app):
+        self.host = host
+        self.server_name = socket.getfqdn(host)
+        self.port = port
         self.app = app
         self.socket = socket.socket(self.address_family, self.socket_type)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -22,11 +25,12 @@ class WSGIHttpServer:
         while True:
             client_conn, _ = self.socket.accept()
             raw_request = client_conn.recv(1024)
+            # FIXME: Don't parse the request here.
             request = self.parse_request(raw_request)
             self.handle_one_request(request)
 
     def handle_one_request(self, request):
-        pass
+
 
     def parse_request(self, request):
         pass
@@ -38,7 +42,21 @@ class WSGIHttpServer:
         pass
 
     def set_environment(self):
-        pass
+        env = {}
+        # Required WSGI variables
+        env['wsgi.version']      = (1, 0)
+        env['wsgi.url_scheme']   = 'http'
+        env['wsgi.input']        = io.StringIO(self.decoded_raw_request)
+        env['wsgi.errors']       = sys.stderr
+        env['wsgi.multithread']  = False
+        env['wsgi.multiprocess'] = False
+        env['wsgi.run_once']     = False
+        # Required CGI variables
+        env['REQUEST_METHOD']    = self.request_method
+        env['PATH_INFO']         = self.path
+        env['SERVER_NAME']       = self.server_name
+        env['SERVER_PORT']       = str(self.port)
+        return env
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='A simple HTTP server that supports WSGI')
