@@ -5,20 +5,21 @@ import sys
 import time
 
 class WSGIHttpServer:
-
-    address_family = socket.AF_INET
-    socket_type = socket.SOCK_STREAM
-    wait_queue_len = 5
-
     def __init__(self, host, port, app):
         self.host = host
         self.server_name = socket.getfqdn(host)
         self.port = port
         self.app = app
-        self.socket = socket.socket(self.address_family, self.socket_type)
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((host, port))
-        self.socket.listen(self.wait_queue_len)
+        self.socket.listen(5)
+        self.client_conn = None
+        self.decoded_raw_request = None
+        self.method = None
+        self.request_path = None
+        self.http_version = None
+        self.response_line_and_headers = None
 
     def handle_requests_forever(self):
         # TODO: Make this asynchronous.
@@ -37,7 +38,7 @@ class WSGIHttpServer:
 
     def parse_request(self, decoded_raw_request):
         request_line = decoded_raw_request.splitlines()[0].rstrip('\r\n')
-        (self.method, self.request_path, self.http_server) = request_line.split()
+        (self.method, self.request_path, self.http_version) = request_line.split()
 
     def start_response(self, status, response_headers, exc_info=None):
         server_headers = [
