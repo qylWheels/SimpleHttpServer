@@ -29,7 +29,7 @@ class WSGIHttpServer:
     def handle_one_request(self):
         raw_request = self.client_conn.recv(1024)
         self.decoded_raw_request = raw_request.decode()
-        print(''.join(f'> {line}' for line in self.decoded_raw_request))
+        print(''.join(f'> {line}\n' for line in self.decoded_raw_request.splitlines()))
         self.parse_request(self.decoded_raw_request)
         env = self.set_environment()
         result = self.app(env, self.start_response)
@@ -77,6 +77,7 @@ class WSGIHttpServer:
         env['SERVER_PORT']       = str(self.port)
         return env
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='A simple HTTP server that supports WSGI')
     parser.add_argument('-p', '--port', type=int, help='port number')
@@ -86,4 +87,8 @@ if __name__ == "__main__":
     port = args.port
     module_name = args.module_name
     start_func = args.start_func
+    module = __import__(module_name)
+    app = getattr(module, start_func)
+    httpd = WSGIHttpServer('', port, app)
     print(f"HTTP server starts on http://127.0.0.1:{port}...")
+    httpd.handle_requests_forever()
