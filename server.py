@@ -1,4 +1,5 @@
 import argparse
+import concurrent.futures
 import io
 import socket
 import sys
@@ -20,12 +21,12 @@ class WSGIHttpServer:
         self.request_path = None
         self.http_version = None
         self.response_line_and_headers = None
+        self.thread_pool = concurrent.futures.ThreadPoolExecutor()
 
     def handle_requests_forever(self):
-        # TODO: Make this asynchronous.
         while True:
             self.client_conn, _ = self.socket.accept()
-            self.handle_one_request()
+            self.thread_pool.submit(self.handle_one_request)
 
     def handle_one_request(self):
         raw_request = self.client_conn.recv(1024)
